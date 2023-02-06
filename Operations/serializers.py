@@ -7,7 +7,7 @@ from Operations.models import Album, Photos
 
 
 class AlbumSerializer(serializers.ModelSerializer):
-    user = CustomerSerializer()
+    user_id = CustomerSerializer()
 
     class Meta:
         model = Album
@@ -15,6 +15,7 @@ class AlbumSerializer(serializers.ModelSerializer):
 
 
 class PhotoSerializer(serializers.ModelSerializer):
+    album_id = AlbumSerializer()
     class Meta:
         model = Photos
         fields = '__all__'

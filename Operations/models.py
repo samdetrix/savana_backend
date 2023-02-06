@@ -20,12 +20,8 @@ class Album(BaseModel):
         return self.album_title
 
 
-class Photos(BaseModel):
-    album_id = models.ForeignKey(Album, on_delete=models.SET_NULL, null=True)
-    image_url = models.CharField(max_length=10)
-    album_image_thumbnail = models.ImageField(upload_to=upload_to, null=True)
 
-    def save(self, *args, **kwargs):
-        unique_id = get_random_string(length=5)
-        self.slug = slugify(self.album_title).join(unique_id)
-        super(Photos, self).save(*args, **kwargs)
+class Photos(BaseModel):
+    album_image_thumbnail = models.ImageField(upload_to=upload_to, null=True)
+    album_id = models.ForeignKey(Album, on_delete=models.SET_NULL, null=True)
+   

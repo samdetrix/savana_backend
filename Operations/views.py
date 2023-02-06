@@ -14,13 +14,12 @@ class AlbumAPIView(APIView):
     # authentication_classes = [authentication.TokenAuthentication]
     # permission_classes = [permissions.IsAuthenticated]
 
-    def Post(self, request):
-        request_data = request.get
+    def post(self, request):
+        request_data = request.data
         album_title = request_data.get('album_title')
-        user_id = request_data.get('user')
-        user = None
+        user = request_data.get('user_id')
         try:
-            user = RegisterPersonnel.objects.get(id=user_id)
+            user_id = RegisterPersonnel.objects.get(id=user)
         except ObjectDoesNotExist:
             res = {
                 "message": "The selected user does not exist",
@@ -28,7 +27,7 @@ class AlbumAPIView(APIView):
             }
         albumObj = Album.objects.get_or_create(
             album_title=album_title,
-            user=user
+            user_id=user_id,
         )
         if albumObj:
 
@@ -69,10 +68,10 @@ class PhotosAPIVIew(APIView):
     def post(self, request):
         request_data = request.data
         album_image_thumbnail = request.FILES.get('album_image_thumbnail')
-        album_id = request_data.get('album')
+        album = request_data.get('album_id')
 
         try:
-            album = Album.objects.get(id=album_id)
+            album_id = Album.objects.get(id=album)
         except ObjectDoesNotExist:
             res = {
                 "message": "The selected album does not exist",
@@ -81,7 +80,7 @@ class PhotosAPIVIew(APIView):
 
         photoObj = Photos.objects.create(
             album_image_thumbnail=album_image_thumbnail,
-            album=album,
+            album_id=album_id,
         )
         photo_serializers = PhotoSerializer(photoObj)
         if photoObj:
@@ -93,7 +92,7 @@ class PhotosAPIVIew(APIView):
             return Response(res)
         else:
             res = {
-                "message": "Failed to upload photo",
+                "message": "Failed to upload Photo",
                 "status": status.HTTP_400_BAD_REQUEST,
 
             }
@@ -103,19 +102,12 @@ class PhotosAPIVIew(APIView):
         id = request.GET.get('id')
         if id:
             photos = Photos.objects.get(id=id)
-            photo_serializer = PhotoSerializer(photos)
-            res = {
-                "data": photo_serializer.data,
-                "message": "Success",
-                "status": 200
-
-            }
+            photo_serializers = PhotoSerializer(photos)
         else:
             photos = Photos.objects.all().order_by('-created_at')
-            photo_serializer = PhotoSerializer(photos, many=True)
-            res ={
-                "data" : photo_serializer.data,
-                "message": "Success",
-                "status": 200
-            }
-        return Response(res)
+            photo_serializers = PhotoSerializer(photos, many=True)
+
+        return Response(photo_serializers.data, status=status.HTTP_200_OK)
+
+
+
